@@ -18,9 +18,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app.models.author_model import Author
-from app.models.book_model import Book
-target_metadata = [Author.metadata, Book.metadata]
+from app.database.database import Base
+# Import all models to ensure they are registered with the Base metadata
+from app.models import AuthorModel, BookModel, author_book_association
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
