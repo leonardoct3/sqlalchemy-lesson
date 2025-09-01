@@ -1,20 +1,20 @@
 from sqlalchemy.orm import Session
-from app.models.author import Author
+from app.models.author_model import AuthorModel
 from app.repositories.base_repository import BaseRepository
 
-class AuthorRepository(BaseRepository[Author]):
+class AuthorRepository(BaseRepository[AuthorModel]):
     def __init__(self, session: Session):
-        super().__init__(session, Author)
+        super().__init__(session, AuthorModel)
 
-    def get_by_email(self, email: str) -> Author | None:
+    def get_by_email(self, email: str) -> AuthorModel | None:
         """Busca um autor pelo email"""
-        return self.session.query(Author).filter(Author.email == email).first()
+        return self.session.query(AuthorModel).filter(AuthorModel.email == email).first()
 
-    def get_by_name(self, name: str) -> list[Author]:
+    def get_by_name(self, name: str) -> list[AuthorModel]:
         """Busca autores pelo nome (busca parcial)"""
-        return self.session.query(Author).filter(Author.name.ilike(f"%{name}%")).all()
+        return self.session.query(AuthorModel).filter(AuthorModel.name.ilike(f"%{name}%")).all()
 
-    def get_authors_with_books(self) -> list[Author]:
+    def get_authors_with_books(self) -> list[AuthorModel]:
         """Retorna autores que têm livros"""
-        return self.session.query(Author).join(Author.books).distinct().all()
+        return self.session.query(AuthorModel).join(AuthorModel.books).distinct().all()
 

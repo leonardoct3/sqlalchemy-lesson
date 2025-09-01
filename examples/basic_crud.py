@@ -4,7 +4,8 @@ Este arquivo demonstra como usar os repositórios para realizar operações bás
 """
 
 from app.database import Base, engine, SessionLocal
-from app.models import Author, Book
+from app.models.author_model import AuthorModel
+from app.models.book_model import BookModel
 from app.repositories import AuthorRepository, BookRepository
 
 def create_tables():
@@ -24,14 +25,18 @@ def example_crud():
         
         # CREATE - Criar um novo autor
         print("=== CRIANDO AUTOR ===")
-        new_author = Author(name="J.K. Rowling", email="jk@example.com")
+        new_author = AuthorModel(name="J.K. Rowling", email="jk@example.com")
         saved_author = author_repo.add(new_author)
         print(f"Autor criado: {saved_author}")
         
         # CREATE - Criar livros
         print("\n=== CRIANDO LIVROS ===")
-        book1 = Book(title="Harry Potter e a Pedra Filosofal", author_id=saved_author.id)
-        book2 = Book(title="Harry Potter e a Câmara Secreta", author_id=saved_author.id)
+        book1 = BookModel(title="Harry Potter e a Pedra Filosofal", isbn="9780439708180")
+        book2 = BookModel(title="Harry Potter e a Câmara Secreta", isbn="9780439064873")
+        
+        # Add authors to books using many-to-many relationship
+        book1.authors.append(saved_author)
+        book2.authors.append(saved_author)
         
         saved_book1 = book_repo.add(book1)
         saved_book2 = book_repo.add(book2)
