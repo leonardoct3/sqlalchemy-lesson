@@ -1,162 +1,249 @@
-# Aula de Introdução ao SQLAlchemy e SQL para Iniciantes
+# SQLAlchemy com Clean Architecture - Projeto Prático
 
-Este repositório foi criado para servir como material didático para estudantes que estão começando a aprender SQL e desejam integrar seus conhecimentos com o SQLAlchemy, um ORM (Object-Relational Mapper) em Python. A estrutura do projeto foi pensada para ser simples e didática, focando nos conceitos essenciais de entidades, modelos e repositórios.
+Este repositório contém a implementação prática do **Handout SQLAlchemy com Clean Architecture**, servindo como material didático para estudantes que estão aprendendo a integrar SQLAlchemy com princípios de arquitetura limpa.
 
-## Estrutura do Projeto
+## 🎯 Objetivos do Projeto
+
+- Demonstrar o uso prático do **SQLAlchemy 2.0** como ORM
+- Aplicar princípios de **Clean Architecture** 
+- Implementar o **padrão Repository** para abstração de dados
+- Usar **Pydantic** para validação e serialização
+- Gerenciar **migrações** com Alembic
+- Preparar a base para futuras **APIs REST**
+
+## 🏗️ Arquitetura do Projeto
+
+O projeto segue os princípios da Clean Architecture, organizando o código em camadas bem definidas:
 
 ```
-sqlalchemy_lesson/
+sqlalchemy-lesson/
 ├── app/
-│   ├── database/             # Configuração do banco de dados (engine, sessão, base)
-│   │   ├── database.py
+│   ├── database/          # 🗄️ Configuração do banco de dados
+│   │   ├── database.py    # Engine, SessionLocal, Base
 │   │   └── __init__.py
-│   ├── entities/             # Entidades de domínio (dataclasses Python)
-│   │   ├── author_entity.py
-│   │   ├── book_entity.py
+│   ├── entities/          # 🏗️ Entidades de domínio (Pydantic)
+│   │   ├── author.py      # Entidade Author
+│   │   └── book.py        # Entidade Book
+│   ├── models/            # 📊 Modelos SQLAlchemy (ORM)
+│   │   ├── author_model.py    # AuthorModel + association table
+│   │   ├── book_model.py      # BookModel
 │   │   └── __init__.py
-│   ├── models/               # Modelos SQLAlchemy (mapeamento ORM)
-│   │   ├── author.py
-│   │   ├── book.py
-│   │   └── __init__.py
-│   ├── repositories/         # Implementação do padrão Repository
-│   │   ├── base_repository.py
-│   │   ├── author_repository.py
-│   │   ├── book_repository.py
-│   │   └── __init__.py
-│   └── __init__.py
-├── examples/                 # Exemplos de uso e scripts de demonstração
-│   ├── basic_crud.py
-│   └── relationships_example.py
-├── .env.example              # Exemplo de arquivo de variáveis de ambiente
-├── .env                      # Variáveis de ambiente (para uso local)
-├── requirements.txt          # Dependências do projeto
-└── README.md                 # Este arquivo
+│   └── repositories/      # 🔄 Padrão Repository
+│       ├── base_repository.py     # Repository genérico
+│       ├── author_repository.py   # Repository específico
+│       └── book_repository.py     # Repository específico
+├── examples/              # 📚 Exemplos de uso
+│   ├── complete_example.py       # Exemplo completo
+│   ├── schemas_example.py        # (para desenvolvimento futuro)
+│   └── simple_entities_example.py # (para desenvolvimento futuro)
+├── alembic/              # 🔄 Migrações de banco
+│   ├── env.py           # Configuração do Alembic
+│   └── versions/        # Arquivos de migração
+├── .env                 # Variáveis de ambiente
+├── .env.example         # Exemplo de configuração
+├── requirements.txt     # Dependências do projeto
+└── alembic.ini         # Configuração do Alembic
 ```
 
-### Explicação da Estrutura
+### 🔍 Explicação das Camadas
 
-*   **`app/database/`**: Contém a configuração para a conexão com o banco de dados, a criação do `engine` (motor de conexão), a `SessionLocal` (para gerenciar sessões de banco de dados) e a `Base` declarativa para os modelos ORM.
-*   **`app/entities/`**: Define as entidades de domínio usando `dataclasses` do Python. Estas representam os objetos de negócio de forma agnóstica à persistência, ou seja, não dependem diretamente do SQLAlchemy. Isso é útil para manter a lógica de negócio separada da lógica de banco de dados.
-*   **`app/models/`**: Contém os modelos SQLAlchemy que mapeiam as classes Python para tabelas no banco de dados. Aqui é onde definimos as colunas, tipos de dados e relacionamentos entre as tabelas.
-*   **`app/repositories/`**: Implementa o padrão Repository, que abstrai a lógica de acesso a dados. Cada repositório é responsável por interagir com um modelo específico, fornecendo métodos para operações CRUD (Create, Read, Update, Delete) e outras consultas específicas.
-*   **`examples/`**: Contém scripts Python que demonstram como usar os modelos e repositórios para interagir com o banco de dados. Inclui exemplos de operações CRUD básicas e como lidar com relacionamentos entre entidades.
+#### Database Layer (Infraestrutura)
+Responsável pela configuração da conexão com o banco de dados:
+- **Engine**: Gerencia conexões com o banco
+- **SessionLocal**: Factory para criar sessões
+- **Base**: Classe base para modelos ORM
 
-## Como Rodar o Projeto
+#### Entities (Domínio)
+Entidades de domínio usando **Pydantic** para:
+- ✅ Validação automática de dados
+- ✅ Serialização/deserialização JSON  
+- ✅ Type hints nativos
+- ✅ Independência de tecnologia de persistência
 
-Siga os passos abaixo para configurar e executar o projeto em sua máquina local:
+#### Models (Infraestrutura ORM)
+Modelos SQLAlchemy que mapeiam entidades para tabelas:
+- 🔗 Relacionamentos entre tabelas
+- 📋 Definição de colunas e tipos
+- 🔑 Chaves primárias e estrangeiras
+- 📊 Índices para performance
 
-1.  **Clone o Repositório:**
-    ```bash
-    git clone <URL_DO_REPOSITORIO>
-    cd sqlalchemy_lesson
-    ```
+#### Repositories (Interface de Dados)
+Implementação do padrão Repository:
+- 🎯 Abstração de acesso a dados
+- 🔄 Operações CRUD padronizadas
+- 🔍 Consultas específicas por entidade
+- 🧪 Facilita testes e mocks
 
-2.  **Crie e Ative um Ambiente Virtual (Recomendado):**
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # No Linux/macOS
-    # venv\Scripts\activate   # No Windows
-    ```
+## 🚀 Como Usar o Projeto
 
-3.  **Instale as Dependências:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+### 1. Configuração Inicial
 
-4.  **Configure o Banco de Dados:**
-    Este projeto usa SQLite por padrão para simplicidade, mas pode ser configurado para PostgreSQL ou outros bancos. O arquivo `.env.example` mostra as opções.
+```bash
+# Clonar o repositório
+git clone <URL_DO_REPOSITORIO>
+cd sqlalchemy-lesson
 
-    Crie um arquivo `.env` na raiz do projeto (no mesmo nível de `requirements.txt`) e adicione a configuração do seu banco de dados. Para SQLite, você pode usar:
-    ```
-    DATABASE_URL=sqlite:///./biblioteca.db
-    ```
-    Isso criará um arquivo `biblioteca.db` no diretório raiz do projeto.
+# Criar e ativar ambiente virtual
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# Linux/macOS  
+source venv/bin/activate
 
-5.  **Execute os Exemplos:**
-    Os scripts em `examples/` criarão as tabelas e demonstrarão as operações.
+# Instalar dependências
+pip install -r requirements.txt
+```
 
-    *   **Exemplo de CRUD Básico:**
-        ```bash
-        python3 -m examples.basic_crud
-        ```
+### 2. Configuração do Banco
 
-    *   **Exemplo de Relacionamentos:**
-        ```bash
-        python3 -m examples.relationships_example
-        ```
+```bash
+# Copiar arquivo de exemplo
+cp .env.example .env
 
-## Conceitos Básicos de SQL e SQLAlchemy
+# Editar .env conforme necessário
+# Para SQLite (padrão): DATABASE_URL=sqlite:///./biblioteca.db
+# Para PostgreSQL: DATABASE_URL=postgresql://user:pass@localhost/dbname
+```
 
-### O que é SQL?
+### 3. Executar Migrações
 
-SQL (Structured Query Language) é a linguagem padrão para gerenciar e manipular bancos de dados relacionais. Ele permite que você crie, leia, atualize e exclua dados (CRUD), defina a estrutura do banco de dados e gerencie permissões.
+```bash
+# Gerar migração inicial (se necessário)
+alembic revision --autogenerate -m "Initial migration"
 
-### O que é SQLAlchemy?
+# Aplicar migrações
+alembic upgrade head
+```
 
-SQLAlchemy é um kit de ferramentas SQL de código aberto e um Object-Relational Mapper (ORM) para Python. Ele permite que os desenvolvedores interajam com bancos de dados usando objetos Python em vez de escrever SQL puro. Isso torna o código mais legível, reutilizável e menos propenso a erros.
+### 4. Executar Exemplos
 
-### ORM (Object-Relational Mapper)
+```bash
+# Exemplo completo com todas as funcionalidades
+python examples/complete_example.py
+```
 
-Um ORM é uma técnica de programação que mapeia objetos de um programa para tabelas em um banco de dados relacional. Ele atua como uma 
+## 📋 Funcionalidades Implementadas
 
+### ✅ CRUD Completo
+- **Create**: Criação de autores e livros
+- **Read**: Busca por ID, email, título, etc.
+- **Update**: Atualização de registros
+- **Delete**: Remoção de registros
 
-ponte entre a programação orientada a objetos e os bancos de dados relacionais, permitindo que os desenvolvedores trabalhem com dados como se fossem objetos Python.
+### ✅ Relacionamentos
+- **Many-to-Many**: Autores ↔ Livros
+- **Association Table**: `author_book_association`
+- **Eager Loading**: Carregamento otimizado
 
-### Entidades vs. Modelos
+### ✅ Validações
+- **Pydantic**: Validação automática de tipos
+- **Email**: Validação de formato de email
+- **String Length**: Limitação de tamanhos
+- **Required Fields**: Campos obrigatórios
 
-*   **Entidades (`app/entities/`)**: São classes Python simples (dataclasses) que representam os conceitos do seu domínio de negócio. Elas são independentes de qualquer tecnologia de persistência e focam na lógica de negócio. Por exemplo, `AuthorEntity` e `BookEntity` representam um autor e um livro, respectivamente, com seus atributos e comportamentos.
+### ✅ Consultas Avançadas
+- **Busca Parcial**: Por nome/título usando `ILIKE`
+- **Joins**: Consultas com relacionamentos
+- **Filtragem**: Por diferentes critérios
 
-*   **Modelos (`app/models/`)**: São as classes que o SQLAlchemy usa para mapear para as tabelas do banco de dados. Eles herdam de `Base` do SQLAlchemy e contêm a definição das colunas e relacionamentos. Os modelos são a representação da sua entidade no banco de dados.
+## 🔧 Tecnologias Utilizadas
 
-### Padrão Repository
+| Tecnologia | Versão | Função |
+|------------|--------|--------|
+| **SQLAlchemy** | 2.0.30 | ORM principal |
+| **Pydantic** | 2.7.1 | Validação e serialização |
+| **Alembic** | 1.13.1 | Migrações de banco |
+| **PostgreSQL** | Driver | Banco de produção |
+| **SQLite** | Built-in | Banco de desenvolvimento |
+| **python-dotenv** | 1.0.1 | Variáveis de ambiente |
 
-O padrão Repository (Repositório) atua como uma camada de abstração entre a lógica de negócio e a camada de persistência de dados. Em vez de a lógica de negócio interagir diretamente com o SQLAlchemy (ou qualquer outra tecnologia de banco de dados), ela interage com o repositório. Isso traz vários benefícios:
+## 🎓 Conceitos Aplicados
 
-*   **Separação de Preocupações**: A lógica de acesso a dados fica encapsulada no repositório, tornando o código mais limpo e fácil de manter.
-*   **Testabilidade**: Facilita a escrita de testes unitários para a lógica de negócio, pois você pode "mockar" (simular) o repositório.
-*   **Flexibilidade**: Permite trocar a tecnologia de persistência (por exemplo, de PostgreSQL para MongoDB) com menos impacto na lógica de negócio.
+### Clean Architecture
+- **Separação de Responsabilidades**: Cada camada tem uma função específica
+- **Independência de Frameworks**: Lógica de negócio independente do SQLAlchemy
+- **Testabilidade**: Fácil de testar cada camada isoladamente
 
-## Próximos Passos e Integração com FastAPI
+### Princípios SOLID
 
-Este projeto serve como uma base sólida para entender o SQLAlchemy e o padrão Repository. Para avançar, você pode explorar os seguintes tópicos:
+#### 🔹 Single Responsibility Principle (SRP)
+```python
+# Cada classe tem uma única responsabilidade
+class AuthorRepository:  # Apenas acesso a dados de Author
+class Author:           # Apenas representação da entidade
+class AuthorModel:      # Apenas mapeamento ORM
+```
 
-*   **Migrações de Banco de Dados**: Ferramentas como Alembic são usadas para gerenciar alterações no esquema do banco de dados de forma controlada.
-*   **Testes Unitários e de Integração**: Escrever testes para seus repositórios e lógica de negócio.
-*   **Injeção de Dependência**: Usar frameworks como `fastapi.Depends` para gerenciar as sessões do banco de dados e os repositórios de forma eficiente.
-*   **Integração com FastAPI**: O próximo passo natural é construir uma API RESTful usando FastAPI, expondo as operações CRUD definidas nos repositórios. O FastAPI é um framework web moderno e rápido para construir APIs com Python, e se integra muito bem com o SQLAlchemy.
+#### 🔹 Open/Closed Principle (OCP)
+```python
+# BaseRepository está aberto para extensão, fechado para modificação
+class AuthorRepository(BaseRepository[AuthorModel]):
+    def get_by_email(self, email: str):  # Extensão sem modificação
+        pass
+```
 
-    Um exemplo de como a integração pode ser feita:
+#### 🔹 Dependency Inversion Principle (DIP)
+```python
+# Repository depende de abstração (Session), não implementação
+class AuthorRepository:
+    def __init__(self, session: Session):  # Depende da interface
+        self.session = session
+```
 
-    ```python
-    # Exemplo de como um endpoint FastAPI pode usar o repositório
-    from fastapi import FastAPI, Depends, HTTPException
-    from sqlalchemy.orm import Session
-    from app.database import SessionLocal
-    from app.repositories import AuthorRepository
-    from app.entities import AuthorEntity
+## 🚀 Próximos Passos
 
-    app = FastAPI()
+Este projeto serve como base para:
 
-    # Função para obter a sessão do banco de dados
-    def get_db():
-        db = SessionLocal()
-        try:
-            yield db
-        finally:
-            db.close()
+### 🌐 APIs REST com FastAPI
+```python
+@app.post("/authors/")
+def create_author(author: Author, db: Session = Depends(get_db)):
+    repo = AuthorRepository(db)
+    # Usar o repository implementado
+    return repo.add(author_model)
+```
 
-    @app.post("/authors/", response_model=AuthorEntity)
-    def create_author(author: AuthorEntity, db: Session = Depends(get_db)):
-        repo = AuthorRepository(db)
-        # Convertendo a entidade para o modelo SQLAlchemy para persistência
-        new_author_model = Author(name=author.name, email=author.email)
-        created_author = repo.add(new_author_model)
-        # Convertendo o modelo persistido de volta para entidade para resposta
-        return AuthorEntity(id=created_author.id, name=created_author.name, email=created_author.email)
+### 🧪 Testes Automatizados
+- Unit tests para repositories
+- Integration tests para banco de dados
+- Mocks para isolamento de camadas
 
-    # Para rodar este exemplo (após instalar FastAPI e Uvicorn):
-    # uvicorn main:app --reload
-    ```
+### 🏭 Funcionalidades Avançadas
+- **Service Layer**: Lógica de negócio complexa
+- **DTOs**: Separação entre entradas/saídas da API
+- **Authentication**: Controle de acesso
+- **Caching**: Otimização de performance
 
-Este projeto visa fornecer uma base sólida para que os estudantes possam explorar o mundo do SQL e do SQLAlchemy de forma prática e organizada. Boa sorte nos estudos!
+## 📚 Material de Estudo
 
+### Handout Completo
+Este projeto acompanha um **handout detalhado** disponível em:
+- [Handout SQLAlchemy com Clean Architecture](../sqlalchemy-handout/)
+
+### Conceitos Essenciais
+1. **ORM (Object-Relational Mapping)**
+2. **Clean Architecture Principles**
+3. **Repository Pattern**
+4. **Domain-Driven Design (DDD)**
+5. **SOLID Principles**
+
+### Documentação Oficial
+- [SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/en/20/)
+- [Pydantic Documentation](https://docs.pydantic.dev/)
+- [Alembic Documentation](https://alembic.sqlalchemy.org/)
+
+## 🤝 Contribuindo
+
+Este é um projeto educacional. Contribuições são bem-vindas para:
+- 📝 Melhorias na documentação
+- 🐛 Correções de bugs
+- ✨ Novos exemplos práticos
+- 🧪 Implementação de testes
+
+## 📄 Licença
+
+Este projeto é destinado para fins educacionais e está disponível sob licença MIT.
+
+---
+
+**Desenvolvido para ensino de SQLAlchemy e Clean Architecture** 🎓
